@@ -27,9 +27,18 @@ class ProductRemplate(models.Model):
     producto_margen = fields.Float('% Margen s/Costo')
 
     @api.onchange('producto_margen')
-    def _onchange_(self):        
+    def _onchange_producto_margen(self):        
         if self.producto_margen:
             margen=1+(self.producto_margen/100)
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
+    
+    @api.model
+    def _calculo_precios_venta(self):
+        productos=self.env['product.template'].search([])
+        for p in productos:
+            margen=1+(p.producto_margen/100)
+            print(margen)
+            p.price_unit=round((p.standard_price*margen)*1.19,0)
+            print(p.price_unit)
     
