@@ -6,6 +6,17 @@ from odoo import models, fields, api
 class Compras(models.Model):
     _inherit = 'purchase.order'
 
+    @api.multi
+    def button_confirm(self):
+        rec= super(Compras, self).button_confirm()
+        for l in self.order_line:
+            product=self.env['product.product'].search([('id','=',l.product_id.id)])
+            values={
+                'standard_price':l.price_unit
+            }
+            product.write(values)
+        
+
     @api.model
     def _actualizar_costo_desde_oc(self):
         for l in self.order_line:
@@ -38,13 +49,20 @@ class ProductRemplate(models.Model):
 
     producto_margen = fields.Float('% Margen s/Costo')
 
-    @api.onchange('producto_margen')
+    @api.onchange('producto_margen','standard_price')
     def _onchange_producto_margen(self):        
         if self.producto_margen:
             margen=1+(self.producto_margen/100)
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
-    
+
+    @api.onchange('standard_price')
+    def _onchange_standard_price(self):        
+        if self.producto_margen:
+            margen=1+(self.producto_margen/100)
+            precio=round(((self.standard_price*margen)*1.19),0)
+            self.list_price=precio
+
     @api.model
     def _calculo_precios_venta(self):
         productos=self.env['product.template'].search([('list_price','<',10)])
