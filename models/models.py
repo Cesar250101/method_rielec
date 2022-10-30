@@ -1,12 +1,29 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api,SUPERUSER_ID, _
+from odoo.exceptions import UserError, ValidationError
+
+class Partner(models.Model):
+    _inherit = 'pos.session'
+
+    @api.multi
+    def open_frontend_cb(self):
+        if not self.ids:
+            return {}
+        # for session in self.filtered(lambda s: s.user_id.id != self.env.uid):
+        #     raise UserError(_("You cannot use the session of another user. This session is owned by %s. "
+        #                       "Please first close this one to use this point of sale.") % session.user_id.name)
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url':   '/pos/web/',
+        }
 
 
 class Partner(models.Model):
     _inherit = 'res.partner'
 
-    fecha_bloque_hasta = fields.Date(string='Fecha de Bloqueo')
+    #fecha_bloque_hasta = fields.Date(string='Fecha de Bloqueo')
 
 class Compras(models.Model):
     _inherit = 'purchase.order'

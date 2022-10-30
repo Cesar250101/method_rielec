@@ -8,7 +8,7 @@
       <field name="inherit_id" ref="pos_partial_payment.pos_partial_payment_res_partner"/>
       <field name="arch" type="xml">
         <xpath expr="//field[@name='limit_credit']" position="after">
-          <field name="fecha_bloque_hasta"/>
+          <!-- <field name="fecha_bloque_hasta"/> -->
         </xpath>        
       </field>
     </record>
