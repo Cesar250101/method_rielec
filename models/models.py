@@ -20,11 +20,6 @@ class Partner(models.Model):
         }
 
 
-class Partner(models.Model):
-    _inherit = 'res.partner'
-
-    #fecha_bloque_hasta = fields.Date(string='Fecha de Bloqueo')
-
 class Compras(models.Model):
     _inherit = 'purchase.order'
 

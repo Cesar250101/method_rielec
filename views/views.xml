@@ -1,18 +1,6 @@
 <odoo>
   <data>
 
-    <!-- res.partner -->
-    <record id="method_rielec.pos_partial_payment_res_partner" model="ir.ui.view">
-      <field name="name">method.rielec.pos.partial.payment.res.partner</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="pos_partial_payment.pos_partial_payment_res_partner"/>
-      <field name="arch" type="xml">
-        <xpath expr="//field[@name='limit_credit']" position="after">
-          <!-- <field name="fecha_bloque_hasta"/> -->
-        </xpath>        
-      </field>
-    </record>
-
 
     <!-- Formulario de Produtos -->
     <record id="method_rielec.view_account_form" model="ir.ui.view">
