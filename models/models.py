@@ -10,9 +10,10 @@ class Partner(models.Model):
     def open_frontend_cb(self):
         if not self.ids:
             return {}
-        # for session in self.filtered(lambda s: s.user_id.id != self.env.uid):
-        #     raise UserError(_("You cannot use the session of another user. This session is owned by %s. "
-        #                       "Please first close this one to use this point of sale.") % session.user_id.name)
+        self.user_id=self.env.uid
+        for session in self.filtered(lambda s: s.user_id.id != self.env.uid):
+            raise UserError(_("You cannot use the session of another user. This session is owned by %s. "
+                              "Please first close this one to use this point of sale.") % session.user_id.name)
         return {
             'type': 'ir.actions.act_url',
             'target': 'self',
