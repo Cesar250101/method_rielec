@@ -45,6 +45,14 @@ class Compras(models.Model):
                 'standard_price':l.price_unit
             }
             product.write(values)
+            #Actualiza precio de venta
+            product_template=self.env['product.template'].search([('id','=',l.product_id.product_tmpl_id.id)])
+            precio=round((l.price_unit*(1+(product_template.producto_margen/100)))*1.19,0)
+            values={
+                'list_price':precio
+            }
+            product_template.write(values)
+
         
 
     @api.model
