@@ -107,6 +107,6 @@ class ProductRemplate(models.Model):
         for p in productos:
             margen=1+(p.producto_margen/100)
             print(margen)
-            p.price_unit=round((p.standard_price*margen)*1.19,0)
-            print(p.price_unit)
+            p.list_price=round((p.standard_price*margen)*1.19,0)
+            print(p.list_price)
     
