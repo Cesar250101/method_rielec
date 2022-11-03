@@ -95,7 +95,7 @@ class ProductRemplate(models.Model):
 
     @api.model
     def _calculo_precios_venta(self):
-        productos=self.env['product.template'].search([('list_price','<',10)])
+        productos=self.env['product.template'].search([('producto_margen','!=',0)])
         for p in productos:
             margen=1+(p.producto_margen/100)
             print(margen)
