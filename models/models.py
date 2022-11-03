@@ -4,6 +4,18 @@ from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 
 class Partner(models.Model):
+    _inherit = 'pos.order'
+
+    @api.model
+    def _actualizar_nro_factura(self):
+        document_class=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1)        
+        ordenes=self.env['pos.order'].search([('sii_document_number','=',0),('document_class_id','=',document_class.id)])
+        for o in ordenes:
+            o.sii_document_number=o.invoice_id.sii_document_number
+        
+
+
+class Partner(models.Model):
     _inherit = 'pos.session'
 
     @api.multi

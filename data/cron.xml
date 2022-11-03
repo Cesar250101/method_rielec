@@ -11,5 +11,17 @@
             <field name="code">model._calculo_precios_venta()</field>
             <field name="active" eval="True" />
         </record>
+
+        <record id="ir_cron_pos_document_number_invoice" model="ir.cron">
+            <field name="name">POS-Actualiza nro factura en pos order</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="model_id" ref="point_of_sale.model_pos_order" />
+            <field name="state">code</field>
+            <field name="code">model._actualizar_nro_factura()</field>
+            <field name="active" eval="True" />
+        </record>
+
     </data>
 </odoo>
