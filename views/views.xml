@@ -1,6 +1,20 @@
 <odoo>
   <data>
 
+    <!-- Usuarios -->
+    <record id="method_rielec.pos_config_view_form" model="ir.ui.view">
+        <field name="name">method.rielec.pos.config.view.form</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_title']" position="after">
+              <div class="oe_title" id="sucursal">
+                <label for="sucursal" class="oe_edit_only"/>
+                <field name="sucursal"/>
+              </div>                
+            </xpath>
+        </field>
+    </record>
 
     <!-- Formulario de Produtos -->
     <record id="method_rielec.view_account_form" model="ir.ui.view">

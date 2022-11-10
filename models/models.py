@@ -3,6 +3,16 @@
 from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 
+class Usuarios(models.Model):
+    _inherit = 'pos.config'
+
+    sucursal = fields.Selection([
+        ('matriz', 'Casa Matris'),
+        ('sucursal', 'Sucursal'),
+    ], string='Sucursal')
+
+    
+
 class Partner(models.Model):
     _inherit = 'pos.order'
 
@@ -87,6 +97,10 @@ class ProductRemplate(models.Model):
 
     producto_margen = fields.Float('% Margen s/Costo')
 
+    @api.onchange('')
+    def _onchange_(self):
+        pass
+
     @api.onchange('producto_margen','standard_price')
     def _onchange_producto_margen(self):        
         if self.producto_margen:
@@ -101,12 +115,12 @@ class ProductRemplate(models.Model):
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
 
-    @api.model
-    def _calculo_precios_venta(self):
-        productos=self.env['product.template'].search([('producto_margen','!=',0)])
-        for p in productos:
-            margen=1+(p.producto_margen/100)
-            print(margen)
-            p.list_price=round((p.standard_price*margen)*1.19,0)
-            print(p.list_price)
+    # @api.model
+    # def _calculo_precios_venta(self):
+    #     productos=self.env['product.template'].search([('producto_margen','!=',0)])
+    #     for p in productos:
+    #         margen=1+(p.producto_margen/100)
+    #         print(margen)
+    #         p.list_price=round((p.standard_price*margen)*1.19,0)
+    #         print(p.list_price)
     
