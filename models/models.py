@@ -4,6 +4,21 @@ from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 
 class Usuarios(models.Model):
+    _inherit = 'stock.picking'
+
+    location_id = fields.Many2one(
+        'stock.location', "Source Location",
+        default=lambda self: self.env['stock.picking.type'].browse(self._context.get('default_picking_type_id')).default_location_src_id,
+        readonly=True, required=True,domain = "[('usage','=','internal')]",
+        states={'draft': [('readonly', False)]})
+    location_dest_id = fields.Many2one(
+        'stock.location', "Destination Location",
+        default=lambda self: self.env['stock.picking.type'].browse(self._context.get('default_picking_type_id')).default_location_dest_id,
+        readonly=True, required=True,domain = "[('usage','=','internal')]",
+        states={'draft': [('readonly', False)]})
+
+
+class Usuarios(models.Model):
     _inherit = 'pos.config'
 
     sucursal = fields.Selection([
