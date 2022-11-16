@@ -130,12 +130,13 @@ class ProductRemplate(models.Model):
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
 
-    # @api.model
-    # def _calculo_precios_venta(self):
-    #     productos=self.env['product.template'].search([('producto_margen','!=',0)])
-    #     for p in productos:
-    #         margen=1+(p.producto_margen/100)
-    #         print(margen)
-    #         p.list_price=round((p.standard_price*margen)*1.19,0)
-    #         print(p.list_price)
+    @api.model
+    def _calculo_precios_venta(self):
+        productos=self.env['product.template'].search([('producto_margen','!=',0)])
+        for p in productos:
+            margen=1+(p.producto_margen/100)
+            p.list_price=round((p.standard_price*margen)*1.19,0)
+            # print(margen)
+            # print(p.standard_price)
+            # print(p.list_price)
     
