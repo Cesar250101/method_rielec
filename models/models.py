@@ -28,7 +28,7 @@ class Usuarios(models.Model):
 
     
 
-class Partner(models.Model):
+class PosOrder(models.Model):
     _inherit = 'pos.order'
 
     @api.model
@@ -38,6 +38,47 @@ class Partner(models.Model):
         for o in ordenes:
             o.sii_document_number=o.invoice_id.sii_document_number
         
+    @api.model
+    def create(self, vals):
+        order_id=super(PosOrder, self).create(vals)
+        nombre_bodega_principal=self.env['stock.warehouse'].search([('lot_stock_id','=',order_id.session_id.config_id.stock_location_id.id)],limit=1).name
+        config_location_id=order_id.session_id.config_id.stock_location_id.id
+        picking_line=[]
+        model_stock_picking=self.env['stock.picking']
+        for i in order_id.lines:
+            if i.stock_location_name!=nombre_bodega_principal:
+                nombre_bodega_secundario=self.env['stock.warehouse'].search([('name','=',i.stock_location_name)],limit=1).lot_stock_id.id
+                picking_line.append(
+                            (0, 0, {
+                                "product_id": i.product_id.id,
+                                "product_uom_qty":i.qty,
+                                "location_dest_id": config_location_id,
+                                "location_id": nombre_bodega_secundario,
+                                "product_uom":i.product_id.product_tmpl_id.uom_id.id,
+                                "name":i.product_id.product_tmpl_id.name,   
+                            }))
+        if picking_line:
+            picking_ids=[]
+            picking={
+                'partner_id':order_id.company_id.partner_id.id,
+                "location_dest_id": config_location_id,
+                "location_id": nombre_bodega_secundario,
+                'origin':order_id.name,
+                'move_ids_without_package':picking_line,
+                'picking_type_id':5
+            }
+            pickng_creado=model_stock_picking.create(picking)
+            pickng_confirmado=pickng_creado.action_confirm()
+
+            picking_ids.append(pickng_creado.id)
+            order_id.write(
+                {
+                    "picking_ids": [(4,pickng_creado.id)]
+                }
+            )
+            return order_id
+
+
 
 
 class Partner(models.Model):
