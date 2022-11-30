@@ -103,6 +103,7 @@ class PosOrder(models.Model):
         invoice_line=[]
 
         for i in self.lines:
+            tax = [(6, 0, [x.id for x in i.product_id.taxes_id])]            
             invoice_line.append(
                             (0, 0, {
                                 "product_id": i.product_id.id,
@@ -110,7 +111,8 @@ class PosOrder(models.Model):
                                 "account_id":i.product_id.categ_id.property_account_income_categ_id.id,
                                 "uom_id":i.product_id.product_tmpl_id.uom_id.id,
                                 "name":i.product_id.product_tmpl_id.name,   
-                                "price_unit":i.price_unit
+                                "price_unit":i.price_unit,
+                                "invoice_lines_tax_ids":tax
                             }))
         if invoice_line:
             referencias=self._prepare_invoice()
