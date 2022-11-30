@@ -29,7 +29,8 @@ class SelectProducts(models.TransientModel):
                     'price_subtotal_incl':product.lst_price,
                     'order_id': order_id.id,
                     'tax_ids':tax,
-                    'stoct_product':stock
+                    'stoct_product':stock,
+                    'location_id':order_id.location_id.id
                 })
             order_id._onchange_amount_line_all()
             order_id._onchange_amount_all()
