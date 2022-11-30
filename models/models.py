@@ -31,12 +31,56 @@ class Usuarios(models.Model):
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
+    tiene_credito = fields.Boolean(string='Tiene Crédito?', related='partner_id.tiene_credito')
+    linea_credito = fields.Float(string='Línea de Crédito',related='partner_id.linea_credito')
+    dias_prorroga = fields.Float('Días Prorroga')
+    monto_deuda = fields.Float(string='Monto Deuda',related='partner_id.monto_deuda' )
+    saldo_linea_credito = fields.Float(string='Saldo Línea Crédito',related='partner_id.saldo_linea_credito')
+
+    journal_document_class_id = fields.Many2one(
+        "account.journal.sii_document_class",
+        string="Tipo Documento",
+        default=lambda self: self._default_journal_document_class_id(),
+        readonly=True,
+        states={"draft": [("readonly", False)]},)
+
+    def _default_journal_document_class_id(self):
+        if not self.env["ir.model"].search([("model", "=", "sii.document_class")]):
+            return False
+        if self.document_class_id:
+            return self.env['account.journal.sii_document_class']
+        journal = self.env["account.invoice"].default_get(["journal_id"])["journal_id"]
+        default_type = self._context.get("type", "out_invoice")
+        if default_type in ["in_invoice", "in_refund"]:
+            return self.env["account.journal.sii_document_class"]
+        dc_type = ["invoice"] if default_type in ["in_invoice", "out_invoice"] else ["credit_note", "debit_note"]
+        jdc = self.env["account.journal.sii_document_class"].search(
+            [("journal_id", "=", journal), ("sii_document_class_id.document_type", "in", dc_type),], limit=1
+        )
+        return jdc
+
+    @api.onchange('journal_document_class_id')
+    def _onchange_journal_document_class_id(self):
+        try:
+            self.sequence_id=self.journal_document_class_id.sequence_id
+            self.document_class_id=self.journal_document_class_id.sii_document_class_id.id
+        except:
+            pass
+
+
     @api.model
     def _actualizar_nro_factura(self):
         document_class=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1)        
         ordenes=self.env['pos.order'].search([('sii_document_number','=',0),('document_class_id','=',document_class.id)])
         for o in ordenes:
             o.sii_document_number=o.invoice_id.sii_document_number
+    
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        try:
+            self.pricelist_id=self.partner_id.property_product_pricelist.id
+        except:
+            pass
         
     # @api.model
     # def create(self, vals):

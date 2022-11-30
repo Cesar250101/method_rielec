@@ -1,5 +1,44 @@
 <odoo>
   <data>
+	<!-- Formulario de POS Order -->
+
+		<record id="inherit_pos_order_form" model="ir.ui.view">
+			<field name="name">inherit_pos_order</field>
+			<field name="model">pos.order</field>
+			<field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//notebook/page[2]/field[@name='statement_ids']/tree/field[@name='amount']" position="after">
+					<field name='banco_id'/>
+					<field name='nombre_propietario'/>
+					<field name='cuenta_bancaria'/>
+					<field name='numero_cheque'/>
+          <field name='fecha_cheque'/>
+				</xpath>
+			</field>
+		</record>
+
+    <!-- Clientes -->
+    <record id="method_rielec.view_partner_form" model="ir.ui.view">
+        <field name="name">method.rielec.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+        <xpath expr="//page[@name='sales_purchases']" position="after">
+          <page name="linea_credito" string="Línea de Crédito">
+                <group name="credito" string="Crédito">
+                  <group>
+                    <field name="tiene_credito"/>
+                    <field class="text-success" name="linea_credito" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary'/>
+                    <field name="dias_prorroga" attrs="{'invisible':[('tiene_credito', '=', False)]}"/>
+                    <field class="text-danger" name="monto_deuda" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary'/>
+                    <field class="text-warning" name="saldo_linea_credito" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary' readonly="1"/>                    
+                  </group>
+                </group>
+          </page>
+        </xpath>          
+        </field>
+    </record>
+
 
     <!-- Usuarios -->
     <record id="method_rielec.pos_config_view_form" model="ir.ui.view">

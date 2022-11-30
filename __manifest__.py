@@ -19,7 +19,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','account','sale','purchase'],
+    'depends': ['base','account','sale','purchase','point_of_sale','l10n_cl_dte_point_of_sale'],
 
     # always loaded
     'data': [
@@ -27,6 +27,10 @@
         'views/views.xml',
         'views/templates.xml',
         'data/cron.xml',
+        'wizard/select_products_wizard_view.xml',
+        'views/sale_views.xml',        
+        'views/journal.xml',
+        'wizard/pos_make_payment.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

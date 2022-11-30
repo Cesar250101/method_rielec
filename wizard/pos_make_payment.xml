@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- point_of_sale.view_pos_payment -->
+    <record model="ir.ui.view" id="method_rielec.view_pos_payment">
+        <field name="name">method.rielec.view.pos.payment</field>
+        <field name="model">pos.make.payment</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_name']" position="after">                
+                <field name="es_cheque" invisible="1"/>
+                <field name="banco_id" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                <field name="nombre_propietario" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                <field name="cuenta_bancaria" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                <field name="numero_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                <field name="fecha_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
