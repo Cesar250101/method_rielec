@@ -158,7 +158,8 @@ class PosOrder(models.Model):
     def _prepare_invoice(self):
         vals = super(PosOrder, self)._prepare_invoice()
         if self.partner_id.acteco_ids:
-            vals["acteco_id"] = self.partner_id.acteco_ids.id
+            for a in self.partner_id.acteco_ids:
+                vals["acteco_id"] = a.id
         if self.referencias:
             vals["referencias"] = []
             for ref in self.referencias:
