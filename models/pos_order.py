@@ -101,27 +101,15 @@ class PosOrder(models.Model):
         order_id=self
         model_account_invoice=self.env['account.invoice']
         invoice_line=[]
-
-        for i in self.lines:
-            tax = [(6, 0, [x.id for x in i.product_id.taxes_id])]            
-            invoice_line.append(
-                            (0, 0, {
-                                "product_id": i.product_id.id,
-                                "quantity":i.qty,
-                                "account_id":i.product_id.categ_id.property_account_income_categ_id.id,
-                                "uom_id":i.product_id.product_tmpl_id.uom_id.id,
-                                "name":i.product_id.product_tmpl_id.name,   
-                                "price_unit":i.price_unit,
-                                "invoice_lines_tax_ids":tax
-                            }))
-        if invoice_line:
+        tax_ids=[]
+        if self.lines:
             referencias=self._prepare_invoice()
             invoice_type = 'out_invoice' if self.amount_total >= 0 else 'out_refund'
 
             invoice={
                 'partner_id':order_id.partner_id.id,
                 'origin':order_id.name,
-                'invoice_line_ids':invoice_line,
+                # 'invoice_line_ids':invoice_line,
                 'date_invoice':order_id.date_order.date(),
                 'referencias':referencias,
                 'account_id': self.partner_id.property_account_receivable_id.id,
@@ -140,8 +128,39 @@ class PosOrder(models.Model):
 
             }
             factura_creada=model_account_invoice.create(invoice)
-            factura_confirmado=factura_creada.action_invoice_open()
-            order_id.write({
+            for i in factura_creada.invoice_line_ids:
+                i.invoice_lines_tax_ids=tax_ids = [(6, False, i.tax_ids_after_fiscal_position.filtered(lambda t: t.company_id.id == i.order_id.company_id.id).ids)]
+
+        for i in self.lines:
+            tax_ids = [(6, False, i.tax_ids_after_fiscal_position.filtered(lambda t: t.company_id.id == i.order_id.company_id.id).ids)]
+            # invoice_line.append(
+            #                 (0, 0, {
+            #                     "product_id": i.product_id.id,
+            #                     "quantity":i.qty,
+            #                     "account_id":i.product_id.categ_id.property_account_income_categ_id.id,
+            #                     "uom_id":i.product_id.product_tmpl_id.uom_id.id,
+            #                     "name":i.product_id.product_tmpl_id.name,   
+            #                     "price_unit":i.price_unit,
+            #                     "invoice_lines_tax_ids":tax_ids
+            #                 }))    
+            #         
+            inv_name = i.product_id.name_get()[0][1]
+            InvoiceLine = self.env['account.invoice.line']
+            inv_line = {
+                'invoice_id': factura_creada.id,
+                'product_id': i.product_id.id,
+                'quantity': i.qty if self.amount_total >= 0 else -i.qty,
+                'account_analytic_id': self._prepare_analytic_account(i),
+                'name': inv_name,
+            }           
+            invoice_line = InvoiceLine.sudo().new(inv_line)
+            invoice_line._onchange_product_id()
+            invoice_line.invoice_line_tax_ids = [(6, False, i.tax_ids_after_fiscal_position.filtered(lambda t: t.company_id.id == i.order_id.company_id.id).ids)]
+            inv_line = invoice_line._convert_to_write({name: invoice_line[name] for name in invoice_line._cache})
+            inv_line.update(price_unit=i.price_unit, discount=i.discount)
+            factura_creada_linea= InvoiceLine.sudo().create(inv_line)             
+        factura_confirmado=factura_creada.action_invoice_open()
+        order_id.write({
                 'state':'invoiced',
                 'invoice_id':factura_creada.id,
                 'sii_batch_number':factura_creada.sii_batch_number,
@@ -153,8 +172,8 @@ class PosOrder(models.Model):
                 'sii_message':factura_creada.sii_message,
                 })
 
-            #self.picking_traspaso_id=factura_creada.id
-            return order_id
+        #self.picking_traspaso_id=factura_creada.id
+        return order_id
 
     @api.multi
     def _prepare_invoice(self):

@@ -25,6 +25,7 @@
                     <group>
                         <field name="name"/>
                         <field name="journal_document_class_id"/>
+                        <field name="sii_document_number" readonly="True"/>
                         <field name="partner_id" 
                                 domain="[('customer', '=', True)]" 
                                 context="{'search_default_customer':1}" 
