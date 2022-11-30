@@ -19,7 +19,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','account','sale','purchase','point_of_sale','l10n_cl_dte_point_of_sale'],
+    'depends': ['base','account','sale','purchase','point_of_sale','l10n_cl_dte_point_of_sale','bi_pos_backend_workflow'],
 
     # always loaded
     'data': [

@@ -29,10 +29,12 @@
                                 domain="[('customer', '=', True)]" 
                                 context="{'search_default_customer':1}" 
                                 attrs="{'readonly': [('state','=','invoiced')]}"/>
+
                     </group>
                     <group>
                         <field name="date_order"/>
-                        <field name="session_id"/>                    
+                        <field name="session_id"/>  
+                        <field name="location_id"/>  
                         <field name="invoice_group" invisible="1"/>                                                
                     </group>
                 </group>
@@ -45,10 +47,6 @@
                     <field string="Saldo" name="saldo_linea_credito" widget="statinfo"/><br></br>
                 </button>
 
-            </xpath>
-
-            <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="invisible">1</attribute>
             </xpath>
 
         </field>
