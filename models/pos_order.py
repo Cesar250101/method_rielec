@@ -123,9 +123,13 @@ class PosOrder(models.Model):
     def action_pos_order_paid(self):
         order=super(PosOrder,self).action_pos_order_paid()        
         if self.test_paid():
-            picking=self.crear_picking()
-            if self.journal_document_class_id.sii_document_class_id.sii_code==33:
+            if self.journal_document_class_id.sii_document_class_id.sii_code ==33:
+                picking=self.crear_picking()    
+            else:
+                self.picking_traspaso_id=False
+            if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
                 factura=self.crear_factura()
+
 
     @api.multi
     def crear_factura(self):
@@ -133,16 +137,51 @@ class PosOrder(models.Model):
         model_account_invoice=self.env['account.invoice']
         invoice_line=[]
         tax_ids=[]
+        nro_factura=False
         if self.lines:
-            referencias=self._prepare_invoice()
-            invoice_type = 'out_invoice' if self.amount_total >= 0 else 'out_refund'
+            referencias=self.referencias
+            referencias_o2m=[]
+            invoice_type = 'out_invoice' if self.journal_document_class_id.sii_document_class_id.sii_code == 33 else 'out_refund'
+            if self.journal_document_class_id.sii_document_class_id.sii_code == 61:
+                sii_document_class_id=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1).id
+                if referencias:                    
+                    for r in referencias:          
 
+                        referencias_o2m.append(
+                            (
+                                0,
+                                0,
+                                {
+                                    "origen": r.origen,
+                                    "sii_referencia_CodRef": r.sii_referencia_CodRef,
+                                    "sii_referencia_TpoDocRef": r.sii_referencia_TpoDocRef.id,
+                                    "motivo": r.motivo,
+                                    "fecha_documento": r.fecha_documento,
+                                },
+                            )
+                        )
+
+                        if r.sii_referencia_TpoDocRef.id==sii_document_class_id:
+                            nro_factura=r.origen
+                            factura_referencia=self.env['account.invoice'].search([('sii_document_number','=',nro_factura)])
+                        res = {}            
+                            # Warning("No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!")
+                        if not nro_factura:
+                            res = {'warning': {
+                                    'title': _('Warning'),
+                                    'message': _('Falta referencia a una factura, por favor agregar la referencia en la pestaña otra información!')
+                                                }
+                                }
+                        if res:
+                            self.qty=self.stoct_product
+                            return res                     
             invoice={
                 'partner_id':order_id.partner_id.id,
                 'origin':order_id.name,
-                # 'invoice_line_ids':invoice_line,
+                'type':invoice_type,
+                'refund_invoice_id':factura_referencia.id,
                 'date_invoice':order_id.date_order.date(),
-                'referencias':referencias,
+                'referencias':referencias_o2m,
                 'account_id': self.partner_id.property_account_receivable_id.id,
                 'journal_id': self.session_id.config_id.invoice_journal_id.id,
                 'company_id': self.company_id.id,
