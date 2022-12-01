@@ -25,7 +25,7 @@
         <field name="arch" type="xml">
         <xpath expr="//page[@name='sales_purchases']" position="after">
           <page name="linea_credito" string="Línea de Crédito">
-                <group name="credito" string="Crédito">
+                <group name="credito" string="Crédito" groups="account.group_account_manager">
                   <group>
                     <field name="tiene_credito"/>
                     <field class="text-success" name="linea_credito" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary'/>
