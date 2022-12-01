@@ -34,6 +34,7 @@
                     </group>
                     <group>
                         <field name="date_order"/>
+                        <field name="pos_id"/>  
                         <field name="session_id"/>  
                         <field name="location_id"/>  
                         <field name="invoice_group" invisible="1"/>                                                

@@ -83,9 +83,40 @@ class PosOrder(models.Model):
 
     session_id = fields.Many2one(
         'pos.session', string='Session', required=True, index=True,
-        domain="[('state', '=', 'opened')]", 
+        domain="[('state', '=', 'opened'),('config_id','=','pos_id')]", 
         states={'draft': [('readonly', False)]},
         readonly=True, default=_default_session)
+
+    pos_id = fields.Many2one(comodel_name='pos.config', string='POS', required=True)
+
+    @api.onchange('pos_id')
+    def _onchange_pos_id(self):
+        pos_acceso=[]
+        for u in self.env.user.pos_config_ids:
+            pos_acceso.append(u.id)
+        if self.pos_id.id not in pos_acceso and self.pos_id:
+            res = {'warning': {
+                        'title': _('Warning'),
+                        'message': _('Usuario no esta asignado al POS %s!'%(self.pos_id.name))
+                                    }
+                    }
+            if res:
+                self.pos_id=""
+                return res     
+        for s in self.pos_id.session_ids:
+            if s.state=='opened':
+                self.session_id=s.id
+                return
+
+            res = {'warning': {
+                            'title': _('Warning'),
+                            'message': _('No existe una sesión abierta para el POS %s!'%(self.pos_id.name))
+                                        }
+                        }
+            if res:
+                self.session_id=""
+                return res                 
+
 
 
     @api.multi
