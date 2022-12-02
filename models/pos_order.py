@@ -141,6 +141,7 @@ class PosOrder(models.Model):
         if self.lines:
             referencias=self.referencias
             referencias_o2m=[]
+            factura_referencia=False
             invoice_type = 'out_invoice' if self.journal_document_class_id.sii_document_class_id.sii_code == 33 else 'out_refund'
             if self.journal_document_class_id.sii_document_class_id.sii_code == 61:
                 sii_document_class_id=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1).id
@@ -179,7 +180,7 @@ class PosOrder(models.Model):
                 'partner_id':order_id.partner_id.id,
                 'origin':order_id.name,
                 'type':invoice_type,
-                'refund_invoice_id':factura_referencia.id,
+                'refund_invoice_id':factura_referencia.id if factura_referencia else False,
                 'date_invoice':order_id.date_order.date(),
                 'referencias':referencias_o2m,
                 'account_id': self.partner_id.property_account_receivable_id.id,

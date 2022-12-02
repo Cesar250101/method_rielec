@@ -34,8 +34,8 @@ class PosOrder(models.Model):
     tiene_credito = fields.Boolean(string='Tiene Crédito?', related='partner_id.tiene_credito')
     linea_credito = fields.Float(string='Línea de Crédito',related='partner_id.linea_credito')
     dias_prorroga = fields.Float('Días Prorroga')
-    monto_deuda = fields.Float(string='Monto Deuda',related='partner_id.monto_deuda' )
-    saldo_linea_credito = fields.Float(string='Saldo Línea Crédito',related='partner_id.saldo_linea_credito')
+    monto_deuda = fields.Float(string='Monto Deuda')
+    saldo_linea_credito = fields.Float(string='Saldo Línea Crédito')
 
     journal_document_class_id = fields.Many2one(
         "account.journal.sii_document_class",
@@ -43,6 +43,11 @@ class PosOrder(models.Model):
         default=lambda self: self._default_journal_document_class_id(),
         readonly=True,
         states={"draft": [("readonly", False)]},)
+
+    @api.onchange('partner_id')
+    def _onchange_(self):
+        self.monto_deuda=self.partner_id._compute_monto_deuda()
+        self.saldo_linea_credito=self.partner_id._compute_saldo_linea_credito()
 
     def _default_journal_document_class_id(self):
         if not self.env["ir.model"].search([("model", "=", "sii.document_class")]):

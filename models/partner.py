@@ -16,11 +16,18 @@ class Usuarios(models.Model):
     def _compute_saldo_linea_credito(self):
         for s in self:
             s.saldo_linea_credito=s.linea_credito-s.monto_deuda
-
-    @api.depends('invoice_ids')
+            return s.saldo_linea_credito
+            
+    @api.depends('invoice_ids','linea_credito')
     def _compute_monto_deuda(self):
         deuda=0
         for p in self:
-            for i in p.invoice_ids:
-                deuda+=i.amount_total_signed
+            journal_credito_id=self.env['account.journal'].search([('es_credito','=',True)],limit=1)
+            cuenta_credito=journal_credito_id.default_debit_account_id.id
+            move_line=self.env['account.move.line'].search([('account_id','=',cuenta_credito),('partner_id','=',p.id)])
+
+            for i in move_line:
+                if i.move_id.state=='posted':
+                    deuda+=i.debit-i.credit
             p.monto_deuda=deuda
+            return deuda
