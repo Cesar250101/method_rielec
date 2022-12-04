@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="method_rielec.view_pos_order_refund">
+            <field name="name">method.rielec.view.pos_order.refund</field>
+            <field name="model">pos.order.refund</field>
+            <field name="inherit_id" ref="l10n_cl_dte_point_of_sale.view_pos_order_refund"/>
+            <field name="arch" type="xml">
+                <xpath expr="//footer" position="before">
+                <group name="sesion">
+                    <group>
+                        <field name="pos_id"/>
+                    </group>
+                    <group>
+                        <field name="session_id"/>
+                    </group>                                        
+                </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

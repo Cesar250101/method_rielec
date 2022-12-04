@@ -93,6 +93,9 @@ class PosOrder(models.Model):
     @api.onchange('pos_id')
     def _onchange_pos_id(self):
         pos_acceso=[]
+        if self.pos_id.default_partner_id:
+            self.partner_id=self.pos_id.default_partner_id
+
         for u in self.env.user.pos_config_ids:
             pos_acceso.append(u.id)
         if self.pos_id.id not in pos_acceso and self.pos_id:
@@ -214,6 +217,9 @@ class PosOrder(models.Model):
                 'journal_document_class_id': self.journal_document_class_id.id,
                 'responsable_envio': self.env.uid,
                 'use_documents': True,
+                'residual':self.amount_total,
+                'residual_signed':self.amount_total,
+                'residual_company_signed':self.amount_total,
 
             }
             factura_creada=model_account_invoice.create(invoice)
@@ -221,26 +227,17 @@ class PosOrder(models.Model):
                 i.invoice_lines_tax_ids=tax_ids = [(6, False, i.tax_ids_after_fiscal_position.filtered(lambda t: t.company_id.id == i.order_id.company_id.id).ids)]
 
         for i in self.lines:
-            tax_ids = [(6, False, i.tax_ids_after_fiscal_position.filtered(lambda t: t.company_id.id == i.order_id.company_id.id).ids)]
-            # invoice_line.append(
-            #                 (0, 0, {
-            #                     "product_id": i.product_id.id,
-            #                     "quantity":i.qty,
-            #                     "account_id":i.product_id.categ_id.property_account_income_categ_id.id,
-            #                     "uom_id":i.product_id.product_tmpl_id.uom_id.id,
-            #                     "name":i.product_id.product_tmpl_id.name,   
-            #                     "price_unit":i.price_unit,
-            #                     "invoice_lines_tax_ids":tax_ids
-            #                 }))    
-            #         
             inv_name = i.product_id.name_get()[0][1]
             InvoiceLine = self.env['account.invoice.line']
             inv_line = {
                 'invoice_id': factura_creada.id,
                 'product_id': i.product_id.id,
                 'quantity': i.qty if self.amount_total >= 0 else -i.qty,
+                'price_unit':i.price_unit,
                 'account_analytic_id': self._prepare_analytic_account(i),
                 'name': inv_name,
+                'account_id':i.product_id.categ_id.property_account_income_categ_id.id,
+                'uom_id':i.product_id.product_tmpl_id.uom_id.id,
             }           
             invoice_line = InvoiceLine.sudo().new(inv_line)
             invoice_line._onchange_product_id()
@@ -248,7 +245,12 @@ class PosOrder(models.Model):
             inv_line = invoice_line._convert_to_write({name: invoice_line[name] for name in invoice_line._cache})
             inv_line.update(price_unit=i.price_unit, discount=i.discount)
             factura_creada_linea= InvoiceLine.sudo().create(inv_line)             
+            factura_creada_linea._compute_price()
+        factura_creada._compute_amount()
         factura_confirmado=factura_creada.action_invoice_open()
+        factura_creada.residual=factura_creada.amount_total
+        factura_creada.residual_signed=factura_creada.residual_signed
+        factura_creada.residual_company_signed=factura_creada.amount_total_company_signed 
         order_id.write({
                 'state':'invoiced',
                 'invoice_id':factura_creada.id,
