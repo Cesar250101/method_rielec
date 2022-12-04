@@ -86,6 +86,7 @@ class PosOrder(models.Model):
         domain="[('state', '=', 'opened'),('config_id','=','pos_id')]", 
         states={'draft': [('readonly', False)]},
         readonly=True, default=_default_session)
+    
 
     pos_id = fields.Many2one(comodel_name='pos.config', string='POS', required=True)
 
@@ -143,7 +144,7 @@ class PosOrder(models.Model):
             referencias_o2m=[]
             factura_referencia=False
             invoice_type = 'out_invoice' if self.journal_document_class_id.sii_document_class_id.sii_code == 33 else 'out_refund'
-            if self.journal_document_class_id.sii_document_class_id.sii_code == 61:
+            if self.journal_document_class_id.sii_document_class_id.sii_code ==61:
                 sii_document_class_id=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1).id
                 if referencias:                    
                     for r in referencias:          
@@ -174,8 +175,25 @@ class PosOrder(models.Model):
                                                 }
                                 }
                         if res:
-                            self.qty=self.stoct_product
+                            # self.qty=self.stoct_product
                             return res                     
+            elif self.journal_document_class_id.sii_document_class_id.sii_code ==33:
+                if referencias:                    
+                    for r in referencias:          
+                        referencias_o2m.append(
+                            (
+                                0,
+                                0,
+                                {
+                                    "origen": r.origen,
+                                    "sii_referencia_CodRef": r.sii_referencia_CodRef,
+                                    "sii_referencia_TpoDocRef": r.sii_referencia_TpoDocRef.id,
+                                    "motivo": r.motivo,
+                                    "fecha_documento": r.fecha_documento,
+                                },
+                            )
+                        )
+            
             invoice={
                 'partner_id':order_id.partner_id.id,
                 'origin':order_id.name,
