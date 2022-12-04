@@ -13,7 +13,7 @@ class NotasCredito(models.TransientModel):
     _inherit = "pos.order.refund"
 
     pos_id = fields.Many2one(comodel_name='pos.config', string='POS', required=True)    
-    session_id = fields.Many2one(comodel_name='pos.session', string='Session', required=True, index=True,readonly=True)
+    session_id = fields.Many2one(comodel_name='pos.session', string='Session', required=True, index=True)
     
     @api.onchange('pos_id')
     def _onchange_(self):
