@@ -250,12 +250,7 @@ class PosOrder(models.Model):
         factura_creada._compute_amount()
         factura_creada._compute_residual()
         factura_creada.compute_taxes()
-        # factura_confirmado=factura_creada.action_invoice_open()
-        # factura_creada.residual=factura_creada.amount_total
-        # factura_creada.residual_signed=factura_creada.residual_signed
-        # factura_creada.residual_company_signed=factura_creada.amount_total_company_signed 
-        # factura_creada.move_id.button_cancel()
-        # factura_creada.move_id.action_post()
+        factura_confirmado=factura_creada.action_invoice_open()
         order_id.write({
                 'state':'invoiced',
                 'invoice_id':factura_creada.id,
