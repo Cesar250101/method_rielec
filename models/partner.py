@@ -12,6 +12,7 @@ class Usuarios(models.Model):
     monto_deuda = fields.Float(compute='_compute_monto_deuda', string='Monto Deuda', store=True)
     saldo_linea_credito = fields.Float(string='Saldo Línea Crédito',compute='_compute_saldo_linea_credito',store=True)
 
+
     @api.depends('linea_credito','monto_deuda')
     def _compute_saldo_linea_credito(self):
         for s in self:

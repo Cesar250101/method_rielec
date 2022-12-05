@@ -89,6 +89,20 @@ class PosOrder(models.Model):
     
 
     pos_id = fields.Many2one(comodel_name='pos.config', string='POS', required=True)
+    partner_saldo_favor = fields.Float('Saldo a Favor')
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        saldo_favor=0
+        for p in self:
+            move_line=self.env['account.move.line'].search([('account_id','=',p.partner_id.property_account_receivable_id.id),('partner_id','=',p.id)])
+            for i in move_line:
+                if i.move_id.state=='posted':
+                    saldo_favor+=i.debit-i.credit
+            if saldo_favor<0:
+                self.partner_saldo_favor=saldo_favor
+
+
 
     @api.onchange('pos_id')
     def _onchange_pos_id(self):
