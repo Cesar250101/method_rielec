@@ -246,11 +246,16 @@ class PosOrder(models.Model):
             inv_line.update(price_unit=i.price_unit, discount=i.discount)
             factura_creada_linea= InvoiceLine.sudo().create(inv_line)             
             factura_creada_linea._compute_price()
+            factura_creada_linea._get_price_tax()
         factura_creada._compute_amount()
-        factura_confirmado=factura_creada.action_invoice_open()
-        factura_creada.residual=factura_creada.amount_total
-        factura_creada.residual_signed=factura_creada.residual_signed
-        factura_creada.residual_company_signed=factura_creada.amount_total_company_signed 
+        factura_creada._compute_residual()
+        factura_creada.compute_taxes()
+        # factura_confirmado=factura_creada.action_invoice_open()
+        # factura_creada.residual=factura_creada.amount_total
+        # factura_creada.residual_signed=factura_creada.residual_signed
+        # factura_creada.residual_company_signed=factura_creada.amount_total_company_signed 
+        # factura_creada.move_id.button_cancel()
+        # factura_creada.move_id.action_post()
         order_id.write({
                 'state':'invoiced',
                 'invoice_id':factura_creada.id,
