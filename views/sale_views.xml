@@ -9,7 +9,12 @@
                 <button name="%(act_open_select_products_view_method)d" type="action" string="Seleccionar Productos"
                         context="{'default_flag_order': 'so'}" attrs="{'invisible': [('state', '!=', 'draft')]}"
                         class="oe_highlight" />
+                <button name="%(act_open_select_sale_order_view_method)d" type="action" string="Seleccionar Presupuestos"
+                        attrs="{'invisible': [('state', '!=', 'draft')]}"
+                        class="oe_highlight" />
             </header>
+
+
             <xpath expr="//field[@name='picking_id']" position="after">
                 <field name="picking_traspaso_id"/>                
             </xpath>
@@ -30,23 +35,31 @@
                                 domain="[('customer', '=', True)]" 
                                 context="{'search_default_customer':1}" 
                                 attrs="{'readonly': [('state','=','invoiced')]}"/>
-                        <field name="partner_saldo_favor" string="" widget="statinfo" class="text-success"/>
-
+                        <field name="partner_saldo_favor" string="" widget="statinfo" class="text-success" attrs="{'invisible': [('partner_saldo_favor', '==', 0.00),('state','!=','draft'),(('partner_id','=',False))]}"/>
+                        
                     </group>
                     <group>
                         <field name="date_order"/>
                         <field name="pos_id"/>  
                         <field name="session_id"/>  
                         <field name="location_id"/>  
-                        <field name="invoice_group" invisible="1"/>                                                
+                        <field name="sale_order_ids" widget="many2many_tags"/>
+                        <field name="invoice_group" invisible="1"/> 
+                        <field name="tiene_credito" invisible="1"/>      
+                        <field name="linea_credito" invisible="1"/>                                      
                     </group>
                 </group>
             </xpath>
             <xpath expr="//button[@name='action_view_invoice']" position="after">
-                <button class="oe_stat_button" type="action" name="428" groups="sales_team.group_sale_salesman" attrs="{'invisible': [('tiene_credito', '=', False)]}" icon="fa-usd">
-                    <field string="Tiene Crédito" name="tiene_credito" invisible="1"/>
-                    <field string="Línea Crédito" name="linea_credito" widget="statinfo"/><br></br>
+                <!-- <button class="oe_stat_button" type="action" name="428" groups="sales_team.group_sale_salesman" attrs="{'invisible': [('tiene_credito', '=', False),('state','!=','draft'),('partner_id','=',False)]}" icon="fa-usd"> -->
+                <button class="oe_stat_button" type="action" name="" groups="sales_team.group_sale_salesman" attrs="{'invisible':['|',('state','!=','draft'),('partner_id','=',False),('tiene_credito','!=',True)]}" icon="fa-usd">
+                    <field string="LíneaCredito" name="linea_credito" widget="statinfo"/><br></br>
+                </button>
+                <button class="oe_stat_button" type="action" name="" groups="sales_team.group_sale_salesman" attrs="{'invisible':['|',('state','!=','draft'),('partner_id','=',False),('tiene_credito','!=',True)]}" icon="fa-usd">
                     <field string="Deuda" name="monto_deuda" widget="statinfo"/><br></br>
+
+                </button>
+                <button class="oe_stat_button" type="action" name="" groups="sales_team.group_sale_salesman" attrs="{'invisible':['|',('state','!=','draft'),('partner_id','=',False),('tiene_credito','!=',True)]}" icon="fa-usd">
                     <field string="Saldo" name="saldo_linea_credito" widget="statinfo"/><br></br>
                 </button>
 

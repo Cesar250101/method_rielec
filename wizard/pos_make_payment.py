@@ -20,8 +20,13 @@ class POSPagos(models.TransientModel):
         if self.es_credito:
             order = self.env['pos.order'].browse(self.env.context.get('active_id', False))
             partner_id_saldo_credito=order.partner_id.saldo_linea_credito
-            if order.partner_id.tiene_credito:
-                if self.amount>partner_id_saldo_credito:
-                    raise ValidationError('Saldo de crédito %s no alcanza para pagar la orden '%(partner_id_saldo_credito))
-            else:
-                raise ValidationError('Cliente %s no tiene habilitada la forma de pago crédito '%(order.partner_id.name))
+            if order.journal_document_class_id.sii_document_class_id.sii_code!=61:
+                if order.partner_saldo_favor!=0:
+                    if self.amount>order.partner_saldo_favor:
+                        raise ValidationError('Saldo a favor %s no alcanza para pagar la orden '%(order.partner_saldo_favor))
+                else:
+                    if order.partner_id.tiene_credito:
+                        if self.amount>partner_id_saldo_credito:
+                            raise ValidationError('Saldo de crédito %s no alcanza para pagar la orden '%(partner_id_saldo_credito))
+                    else:
+                        raise ValidationError('Cliente %s no tiene habilitada la forma de pago crédito '%(order.partner_id.name))

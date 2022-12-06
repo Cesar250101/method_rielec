@@ -28,6 +28,7 @@
         'views/templates.xml',
         'data/cron.xml',
         'wizard/select_products_wizard_view.xml',
+        'wizard/select_sale_order_wizard_view.xml',
         'wizard/nota_credito.xml',
         'views/sale_views.xml',        
         'views/journal.xml',

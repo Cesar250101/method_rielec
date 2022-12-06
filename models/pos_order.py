@@ -70,6 +70,9 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
     picking_traspaso_id = fields.Many2one(comodel_name='stock.picking', string='Traspaso de Bodega')
+    sale_order_ids = fields.Many2many(comodel_name='sale.order', string='Presupuestos')
+
+
     def _default_session(self):
         pos=[]
         pos_usuarios=self.env.user.pos_config_ids
@@ -94,13 +97,42 @@ class PosOrder(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         saldo_favor=0
+        journal_credito_id=self.env['account.journal'].search([('es_credito','=',True)],limit=1)        
+        tipodocto_nc_id=self.env['sii.document_class'].search([('sii_code','=',61)],limit=1).id
         for p in self:
-            move_line=self.env['account.move.line'].search([('account_id','=',p.partner_id.property_account_receivable_id.id),('partner_id','=',p.id)])
+            move_line=self.env['account.move.line'].search([('account_id','=',p.partner_id.property_account_receivable_id.id),('partner_id','=',p.partner_id.id)])
             for i in move_line:
                 if i.move_id.state=='posted':
                     saldo_favor+=i.debit-i.credit
+
+            documentos_sin_comprobante=self.env['pos.order'].search([('partner_id','=',p.partner_id.id),
+                                                            ('account_move','=',False)
+                                                            ])
+            for nc in documentos_sin_comprobante:
+                saldo_favor+=nc.amount_total
             if saldo_favor<0:
                 self.partner_saldo_favor=saldo_favor
+            else:
+                self.partner_saldo_favor=0
+
+            
+        deuda=0
+
+        cuenta_credito=journal_credito_id.default_debit_account_id.id
+        move_line=self.env['account.move.line'].search([('account_id','=',cuenta_credito),('partner_id','=',self.partner_id.id)])
+
+        for i in move_line:
+            if i.move_id.state=='posted':
+                deuda+=i.debit-i.credit
+        
+        for i in documentos_sin_comprobante:
+            for p in i.statement_ids:
+                if p.journal_id.id==journal_credito_id.id:
+                    deuda+=i.amount_total
+
+        self.monto_deuda=deuda
+
+        self.saldo_linea_credito=self.partner_id.linea_credito-self.monto_deuda                
 
 
 
@@ -146,6 +178,10 @@ class PosOrder(models.Model):
             else:
                 self.picking_traspaso_id=False
             if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
+                for i in self.lines:
+                    if i.stoct_product<i.qty:
+                        raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
+                    
                 factura=self.crear_factura()
 
 
