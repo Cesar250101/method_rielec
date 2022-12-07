@@ -40,6 +40,7 @@ class PosOrder(models.Model):
     journal_document_class_id = fields.Many2one(
         "account.journal.sii_document_class",
         string="Tipo Documento",
+        required=True,
         default=lambda self: self._default_journal_document_class_id(),
         readonly=True,
         states={"draft": [("readonly", False)]},)
