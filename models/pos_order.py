@@ -125,10 +125,10 @@ class PosOrder(models.Model):
             if i.move_id.state=='posted':
                 deuda+=i.debit-i.credit
         
-        for i in documentos_sin_comprobante:
-            for p in i.statement_ids:
-                if p.journal_id.id==journal_credito_id.id:
-                    deuda+=i.amount_total
+        # for i in documentos_sin_comprobante:
+        #     for p in i.statement_ids:
+        #         if p.journal_id.id==journal_credito_id.id:
+        #             deuda+=i.amount_total
 
         self.monto_deuda=deuda
 
