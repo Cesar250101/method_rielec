@@ -140,7 +140,8 @@ class PosOrder(models.Model):
     def _onchange_pos_id(self):
         pos_acceso=[]
         if self.pos_id.default_partner_id:
-            self.partner_id=self.pos_id.default_partner_id
+            if self.partner_id==False:
+                self.partner_id=self.pos_id.default_partner_id 
 
         for u in self.env.user.pos_config_ids:
             pos_acceso.append(u.id)
