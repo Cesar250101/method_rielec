@@ -178,10 +178,9 @@ class PosOrder(models.Model):
             else:
                 self.picking_traspaso_id=False
             if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
-                if True==False:
-                    for i in self.lines:
-                        if i.stoct_product<i.qty:
-                            raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
+                for i in self.lines:
+                    if i.stoct_product<i.qty:
+                        raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
                     
                 factura=self.crear_factura()
 
