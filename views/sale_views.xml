@@ -11,7 +11,7 @@
                         class="oe_highlight" />
                 <button name="%(act_open_select_sale_order_view_method)d" type="action" string="Seleccionar Presupuestos"
                         attrs="{'invisible': [('state', '!=', 'draft')]}"
-                        class="oe_highlight" />
+                        class="oe_highlight btn btn-outline-primary" />
             </header>
 
 
