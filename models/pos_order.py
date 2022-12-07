@@ -105,11 +105,11 @@ class PosOrder(models.Model):
                 if i.move_id.state=='posted':
                     saldo_favor+=i.debit-i.credit
 
-            documentos_sin_comprobante=self.env['pos.order'].search([('partner_id','=',p.partner_id.id),
-                                                            ('account_move','=',False)
-                                                            ])
-            for nc in documentos_sin_comprobante:
-                saldo_favor+=nc.amount_total
+            # documentos_sin_comprobante=self.env['pos.order'].search([('partner_id','=',p.partner_id.id),
+            #                                                 ('account_move','=',False)
+            #                                                 ])
+            # for nc in documentos_sin_comprobante:
+            #     saldo_favor+=nc.amount_total
             if saldo_favor<0:
                 self.partner_saldo_favor=saldo_favor
             else:
