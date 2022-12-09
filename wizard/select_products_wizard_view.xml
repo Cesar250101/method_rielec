@@ -6,7 +6,7 @@
         <field name="type">form</field>
         <field name="arch" type="xml">
             <form string="Select Products">
-                <group string="Products">
+                <group string="Products" editable="bottom">
                     <field name="product_ids" nolabel="1" />
                 </group>
                 <footer>

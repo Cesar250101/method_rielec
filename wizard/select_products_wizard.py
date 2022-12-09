@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    cantidad = fields.Integer('Cantidad')
+
 class SelectProducts(models.TransientModel):
     _name = 'method_rielec.select_products'
 
@@ -24,6 +29,7 @@ class SelectProducts(models.TransientModel):
                 self.env['pos.order.line'].create({
                     'product_id': product.id,
                     'product_uom': product.uom_id.id,
+                    'qty':product.cantidad,
                     'price_unit': price,
                     'price_subtotal': round(product.lst_price/1.19),
                     'price_subtotal_incl':product.lst_price,
