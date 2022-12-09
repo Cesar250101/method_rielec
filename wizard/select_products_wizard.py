@@ -38,6 +38,7 @@ class SelectProducts(models.TransientModel):
                     'stoct_product':stock,
                     'location_id':order_id.location_id.id
                 })
+                product.cantidad=1
             order_id._onchange_amount_line_all()
             order_id._onchange_amount_all()
         elif self.flag_order == 'po':
