@@ -29,7 +29,10 @@ class POSPagos(models.TransientModel):
     @api.multi
     def check(self):
         order=super(POSPagos,self).check()   
-        self.nota_credito_id.monto_asignado_pos+=self.amount
+        order = self.env['pos.order'].browse(self.env.context.get('active_id', False))
+        partner_id_saldo_credito=order.partner_id.saldo_linea_credito
+        if order.journal_document_class_id.sii_document_class_id.sii_code==61 and self.nota_credito_id:        
+            self.nota_credito_id.monto_asignado_pos+=self.amount
 
     @api.onchange('nota_credito_id')
     def _onchange_nota_credito_id(self):

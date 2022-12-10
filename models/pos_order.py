@@ -175,17 +175,17 @@ class PosOrder(models.Model):
         order=super(PosOrder,self).action_pos_order_paid()        
         if self.test_paid():
             if self.journal_document_class_id.sii_document_class_id.sii_code ==33:
-                # picking=self.crear_picking()    
-                pass
+                picking=self.crear_picking()    
             else:
                 self.picking_traspaso_id=False
             if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
-                # for i in self.lines:
-                #     if i.stoct_product<i.qty:
-                #         raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
+                if self.journal_document_class_id.sii_document_class_id.sii_code ==33:
+                    for i in self.lines:
+                        stock=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',i.location_id.id)],limit=1).quantity
+                        if stock<i.qty:
+                            raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
                     
-                # factura=self.crear_factura()
-                pass
+                factura=self.crear_factura()
 
 
     @api.multi
@@ -225,7 +225,7 @@ class PosOrder(models.Model):
                             factura_referencia=self.env['account.invoice'].search([('sii_document_number','=',nro_factura)])
                         else:
                             nro_factura=r.origen
-                            factura_referencia=self.env['account.invoice'].search([('sii_document_number','=',nro_factura)])
+                            factura_referencia=self.env['pos.order'].search([('sii_document_number','=',nro_factura)])
                         res = {}            
                             # Warning("No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!")
                         if not nro_factura:
@@ -258,7 +258,7 @@ class PosOrder(models.Model):
                 'partner_id':order_id.partner_id.id,
                 'origin':order_id.name,
                 'type':invoice_type,
-                'refund_invoice_id':factura_referencia.id if factura_referencia else False,
+                'refund_invoice_id':factura_referencia.id if factura_referencia and self.journal_document_class_id.sii_document_class_id.sii_code ==33 else False,
                 'date_invoice':order_id.date_order.date(),
                 'referencias':referencias_o2m,
                 'account_id': self.partner_id.property_account_receivable_id.id,
