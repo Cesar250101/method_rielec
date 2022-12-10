@@ -8,5 +8,6 @@ class Usuarios(models.Model):
 
     es_cheque = fields.Boolean(string='Cueques X Cobrar?')
     es_credito = fields.Boolean(string='Crédito Clientes?')
+    aplicar_nc = fields.Boolean(string='Aplicar NC?',help='Indica si se aplica el valor de una nota de crédito al pago de una venta')
 
     

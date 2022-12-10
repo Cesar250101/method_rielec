@@ -71,7 +71,7 @@ class PosOrder(models.Model):
 
     picking_traspaso_id = fields.Many2one(comodel_name='stock.picking', string='Traspaso de Bodega')
     sale_order_ids = fields.Many2many(comodel_name='sale.order', string='Presupuestos')
-
+    nc_monto_asignado = fields.Integer('Monto Asignado')
 
     def _default_session(self):
         pos=[]
@@ -179,9 +179,9 @@ class PosOrder(models.Model):
             else:
                 self.picking_traspaso_id=False
             if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
-                for i in self.lines:
-                    if i.stoct_product<i.qty:
-                        raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
+                # for i in self.lines:
+                #     if i.stoct_product<i.qty:
+                #         raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
                     
                 factura=self.crear_factura()
 
@@ -200,6 +200,7 @@ class PosOrder(models.Model):
             invoice_type = 'out_invoice' if self.journal_document_class_id.sii_document_class_id.sii_code == 33 else 'out_refund'
             if self.journal_document_class_id.sii_document_class_id.sii_code ==61:
                 sii_document_class_id=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1).id
+                sii_document_class_id_boleta=self.env['sii.document_class'].search([('sii_code','=',39)],limit=1).id
                 if referencias:                    
                     for r in referencias:          
 
@@ -218,6 +219,9 @@ class PosOrder(models.Model):
                         )
 
                         if r.sii_referencia_TpoDocRef.id==sii_document_class_id:
+                            nro_factura=r.origen
+                            factura_referencia=self.env['account.invoice'].search([('sii_document_number','=',nro_factura)])
+                        else:
                             nro_factura=r.origen
                             factura_referencia=self.env['account.invoice'].search([('sii_document_number','=',nro_factura)])
                         res = {}            
@@ -451,5 +455,10 @@ class PosOrder(models.Model):
                     'numero_cheque': data['numero_cheque'],
                     'fecha_cheque': data['fecha_cheque'],
                 })
+        if data['aplicar_nc']==True:
+            args.update({
+                    'nota_credito_id': data['nota_credito_id'][0],
+                })
+
 
         return args

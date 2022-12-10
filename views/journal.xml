@@ -8,7 +8,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='journal_user']" position="after">
                 <field name="es_cheque"/>
-                <field name="es_credito"/>                
+                <field name="es_credito"/> 
+                <field name="aplicar_nc"/> 
             </xpath>
         </field>
     </record>

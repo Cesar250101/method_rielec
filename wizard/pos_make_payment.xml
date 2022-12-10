@@ -7,12 +7,17 @@
         <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='payment_name']" position="after">                
-                <field name="es_cheque" invisible="1"/>
-                <field name="banco_id" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
-                <field name="nombre_propietario" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
-                <field name="cuenta_bancaria" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
-                <field name="numero_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
-                <field name="fecha_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    <field name="es_cheque" invisible="1"/>
+                    <field name="aplicar_nc" invisible="1"/>
+                    <field name="banco_id" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    <field name="nombre_propietario" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    <field name="cuenta_bancaria" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    <field name="numero_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    <field name="fecha_cheque" attrs="{'invisible': [('es_cheque', '=', False)],'required': [('es_cheque', '=', True)]}"/>
+                    
+                    <field name="nota_credito_id" attrs="{'invisible': [('aplicar_nc', '=', False)],'required': [('aplicar_nc', '=', True)]}"/>                
+                    <field name="valor_nc" attrs="{'invisible': [('aplicar_nc', '=', False)],'required': [('aplicar_nc', '=', True)]}" readonly="1"/>    
+                    <field name="monto_asignado_pos" attrs="{'invisible': [('aplicar_nc', '=', False)],'required': [('aplicar_nc', '=', True)]}" readonly="1"/>    
             </xpath>
         </field>
     </record>

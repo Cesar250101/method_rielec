@@ -13,6 +13,7 @@
 					<field name='cuenta_bancaria'/>
 					<field name='numero_cheque'/>
           <field name='fecha_cheque'/>
+          <field name='nota_credito_id'/>
 				</xpath>
 			</field>
 		</record>

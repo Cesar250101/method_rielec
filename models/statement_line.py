@@ -12,3 +12,4 @@ class LineasPagos(models.Model):
     numero_cheque = fields.Char(string='N° Cheque')
     fecha_cheque = fields.Date(string='Fecha Cheque')
     es_cheque = fields.Boolean(string='Cueques X Cobrar?',related='journal_id.es_cheque')
+    nota_credito_id = fields.Many2one(comodel_name='account.invoice', string='Nota Crédito')
