@@ -175,7 +175,8 @@ class PosOrder(models.Model):
         order=super(PosOrder,self).action_pos_order_paid()        
         if self.test_paid():
             if self.journal_document_class_id.sii_document_class_id.sii_code ==33:
-                picking=self.crear_picking()    
+                # picking=self.crear_picking()    
+                pass
             else:
                 self.picking_traspaso_id=False
             if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
@@ -183,7 +184,8 @@ class PosOrder(models.Model):
                 #     if i.stoct_product<i.qty:
                 #         raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
                     
-                factura=self.crear_factura()
+                # factura=self.crear_factura()
+                pass
 
 
     @api.multi
