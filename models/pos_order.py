@@ -405,6 +405,7 @@ class PosOrder(models.Model):
 
     def _prepare_bank_statement_line_payment_values(self, data):
         """Create a new payment for the order"""
+        data_1=data
         args = {
             'amount': data['amount'],
             'date': data.get('payment_date', fields.Date.context_today(self)),
@@ -413,7 +414,10 @@ class PosOrder(models.Model):
         }
 
         journal_id = data.get('journal', False)
-        statement_id = data.get('statement_id', False)
+        # statement_id = data.get('statement_id', False)
+        for s in self.session_id.statement_ids:
+            statement_id=s.id
+            
         assert journal_id or statement_id, "No statement_id or journal_id passed to the method!"
 
         journal = self.env['account.journal'].browse(journal_id)
