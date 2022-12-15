@@ -402,10 +402,11 @@ class PosOrder(models.Model):
 
     @api.constrains('lines')
     def check_qty_stock(self):
-        for l in self.lines:
-            stock=self.env['stock.quant'].search([('product_id','=',l.product_id.id),('location_id','=',l.location_id.id)],limit=1).quantity            
-            if stock<l.qty:
-                raise ValidationError('Stock insuficiente para el producto %s  '%(l.product_id.name))
+            for l in self.lines:
+                if l.product_id.type=='product':
+                    stock=self.env['stock.quant'].search([('product_id','=',l.product_id.id),('location_id','=',l.location_id.id)],limit=1).quantity            
+                    if stock<l.qty:
+                        raise ValidationError('Stock insuficiente para el producto %s  '%(l.product_id.name))
                 
     @api.onchange('lines','amount_total')
     def _onchange_amount_line_all(self):
