@@ -14,6 +14,7 @@ class SelectProducts(models.TransientModel):
         for sale in self.sale_order_ids:
             order_ids.append(sale.id)
             order_id.partner_id=sale.partner_id.id
+            order_id.pricelist_id=sale.pricelist_id.id
             for l in sale.order_line:
                 tax = [(6, 0, [x.id for x in l.product_id.taxes_id])]
                 # price = order_id.pricelist_id.get_product_price(l, 1.0, order_id.partner_id)

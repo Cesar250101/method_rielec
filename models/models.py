@@ -223,11 +223,11 @@ class ProductRemplate(models.Model):
 
     @api.model
     def _calculo_precios_venta(self):
-        productos=self.env['product.template'].search([('producto_margen','!=',0)])
+        productos=self.env['product.template'].search([('active','!=',False)])
         for p in productos:
             margen=1+(p.producto_margen/100)
             p.list_price=round((p.standard_price*margen)*1.19,0)
-            # print(margen)
-            # print(p.standard_price)
-            # print(p.list_price)
+            print(margen)
+            print(p.standard_price)
+            print(p.list_price)
     
