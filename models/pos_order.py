@@ -29,42 +29,52 @@ class PosOrderLine(models.Model):
     location_id = fields.Many2one(comodel_name='stock.location', 
                                     string='Ubicación Stock', 
                                     domain=[('usage','=','internal')])    
-    stoct_product = fields.Integer(string='Stock',readonly=True,store=True)
+    stock_product = fields.Integer(string='Stock',compute='_compute_stock_product')
     session_id = fields.Many2one(comodel_name='pos.session', string='Cesión POS',related='order_id.session_id')
+
+    
+    @api.depends('product_id','location_id')
+    def _compute_stock_product(self):
+        for i in self:
+            stock=0
+            res = {}
+            location_id=i.location_id.id if i.location_id else i.order_id.location_id.id
+            i.location_id=location_id
+            stock_location=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',location_id)],limit=1)
+            for s in stock_location:
+                stock=s.quantity
+            i.stock_product= stock
+
 
     @api.onchange('qty')
     def _onchange_qty(self):
-        if self.product_id:
-            res = {}            
-                # Warning("No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!")
-            if self.stoct_product<self.qty:
-                res = {'warning': {
-                        'title': _('Warning'),
-                        'message': _('No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!')
-                                    }
-                    }
-            if res:
-                self.qty=self.stoct_product
-                return res          
+        if self.product_id.type=='product':
+            if self.product_id:
+                res = {}            
+                    # Warning("No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!")
+                if self.stock_product<self.qty:
+                    res = {'warning': {
+                            'title': _('Warning'),
+                            'message': _('No puede agregar más productos que el stock disponible, Debe agregar una segunda línea con una ubicación que tenga stock!')
+                                        }
+                        }
+                if res:
+                    self.qty=self.stock_product
+                    return res          
 
     @api.onchange('product_id','location_id','qty')
     def _onchange_product(self):
-        if self.product_id:
-            stock=0
-            res = {} 
-            stock_location=self.env['stock.quant'].search([('product_id','=',self.product_id.id),('location_id','=',self.location_id.id)],limit=1)
-            for s in stock_location:
-                stock=s.quantity
-            self.stoct_product=stock
-            if self.qty>stock:
-                res = {'warning': {
-                                'title': _('Warning'),
-                                'message': _('Stock insuficiente para el producto : %s'%(self.product_id.name))
-                                            }
-                            }
-            if res:
-                self.qty=self.stoct_product
-                return res                  
+        if self.product_id.type=='product':        
+            if self.product_id:
+                res = {}
+                if self.qty>self.stock_product:
+                    res = {'warning': {
+                                    'title': _('Warning'),
+                                    'message': _('Stock insuficiente para el producto : %s'%(self.product_id.name))
+                                                }
+                                }
+                if res:
+                    return res                  
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
@@ -178,13 +188,13 @@ class PosOrder(models.Model):
                 picking=self.crear_picking()    
             else:
                 self.picking_traspaso_id=False
-            if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):
-                # if self.journal_document_class_id.sii_document_class_id.sii_code ==33:
-                #     for i in self.lines:
-                #         stock=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',i.location_id.id)],limit=1).quantity
-                #         if stock<i.qty:
-                #             raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
+
+            for i in self.lines:
+                stock=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',i.location_id.id)],limit=1).quantity
+                if stock<i.qty:
+                    raise ValidationError('Stock insuficiente para el producto %s  '%(i.product_id.name))
                     
+            if self.journal_document_class_id.sii_document_class_id.sii_code in(33,61):                    
                 factura=self.crear_factura()
 
 
@@ -235,7 +245,7 @@ class PosOrder(models.Model):
                                                 }
                                 }
                         if res:
-                            # self.qty=self.stoct_product
+                            # self.qty=self.stock_product
                             return res                     
             elif self.journal_document_class_id.sii_document_class_id.sii_code ==33:
                 if referencias:                    

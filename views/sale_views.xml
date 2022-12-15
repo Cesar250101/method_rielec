@@ -22,7 +22,7 @@
             
             <xpath expr="//field[@name='lines']/tree/field[@name='product_id']" position="after">
                 <field name="location_id"/>
-                <field name="stoct_product"/>
+                <field name="stock_product"/>
                 
             </xpath>
             <xpath expr="//group[@name='order_fields']" position="replace">
