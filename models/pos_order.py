@@ -35,15 +35,16 @@ class PosOrderLine(models.Model):
     
     @api.depends('product_id','location_id')
     def _compute_stock_product(self):
-        for i in self:
-            stock=0
-            res = {}
-            location_id=i.location_id.id if i.location_id else i.order_id.location_id.id
-            i.location_id=location_id
-            stock_location=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',location_id)],limit=1)
-            for s in stock_location:
-                stock=s.quantity
-            i.stock_product= stock
+        if self.product_id:
+            for i in self:
+                stock=0
+                res = {}
+                location_id=i.location_id.id if i.location_id else i.order_id.location_id.id
+                i.location_id=location_id
+                stock_location=self.env['stock.quant'].search([('product_id','=',i.product_id.id),('location_id','=',location_id)])
+                for s in stock_location:
+                    stock+=s.quantity
+                i.stock_product= stock
 
 
     @api.onchange('qty')

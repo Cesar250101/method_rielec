@@ -35,7 +35,7 @@
                                 domain="[('customer', '=', True)]" 
                                 context="{'search_default_customer':1}" 
                                 attrs="{'readonly': [('state','=','invoiced')]}"/>
-                        <field name="partner_saldo_favor" string="" widget="statinfo" class="text-success" attrs="{'invisible': [('partner_saldo_favor', '==', 0.00),('state','!=','draft'),(('partner_id','=',False))]}"/>
+                        <!-- <field name="partner_saldo_favor" string="" widget="statinfo" class="text-success" attrs="{'invisible': [('partner_saldo_favor', '==', 0.00),('state','!=','draft'),(('partner_id','=',False))]}"/> -->
                         
                     </group>
                     <group>
