@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
+
 
 class Usuarios(models.Model):
     _inherit = 'res.partner'
@@ -11,6 +13,22 @@ class Usuarios(models.Model):
     dias_prorroga = fields.Integer('Días Prorroga')
     monto_deuda = fields.Float(compute='_compute_monto_deuda', string='Monto Deuda', store=True)
     saldo_linea_credito = fields.Float(string='Saldo Línea Crédito',compute='_compute_saldo_linea_credito',store=True)
+    vigencia_creadito = fields.Date('Vigente hasta:')
+    credito_bloqueado = fields.Boolean('Crédito Bloqueado?')
+
+    
+    @api.model
+    def _bloquea_credito(self):    
+        clientes_con_credito=self.env['res.partner'].search([('tiene_credito','=',True)])
+        fecha_actual=datetime.datetime.now().date()
+        for p in clientes_con_credito:
+            if p.monto_deuda>0:
+                if p.vigencia_creadito:
+                    fecha_para_bloqqueo=p.vigencia_creadito + datetime.timedelta(days=7)
+                    if p.monto_deuda!=0 and fecha_para_bloqqueo<=fecha_actual:
+                        p.credito_bloqueado=True
+            else:
+                p.credito_bloqueado=False
 
 
     @api.depends('linea_credito','monto_deuda')

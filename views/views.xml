@@ -34,6 +34,10 @@
                     <field class="text-danger" name="monto_deuda" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary'/>
                     <field class="text-warning" name="saldo_linea_credito" attrs="{'invisible':[('tiene_credito', '=', False)]}" widget='monetary' readonly="1"/>                    
                   </group>
+                  <group>
+                    <field class="text-success" name="vigencia_creadito" attrs="{'invisible':[('tiene_credito', '=', False)]}"/>
+                    <field class="text-success" name="credito_bloqueado" attrs="{'invisible':[('tiene_credito', '=', False)]}" />
+                  </group>
                 </group>
           </page>
         </xpath>          
