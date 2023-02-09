@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+from datetime import datetime, timedelta
 from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 
@@ -18,17 +18,30 @@ class Usuarios(models.Model):
 
     
     @api.model
-    def _bloquea_credito(self):    
+    def bloquea_credito(self):    
         clientes_con_credito=self.env['res.partner'].search([('tiene_credito','=',True)])
-        fecha_actual=datetime.datetime.now().date()
+        fecha_actual=datetime.now().date()
         for p in clientes_con_credito:
+            #Si tienes facturas vencidas por más de los días de tolerancia se bloquea
+            bloquea=False
+            domain=[
+                ('state','=','open'),                
+                ('partner_id','=',p.id)
+            ]
+            facturas_abiertas=self.env['account.invoice'].search(domain)
+            for f in facturas_abiertas:
+                # fecha_vcto=f.date_due if f.date_due else fecha_actual + datetime.timedelta(days=7)
+                fecha_vcto=f.date_due if f.date_due else fecha_actual + timedelta(days=7)
+                if fecha_vcto<=fecha_actual:
+                    bloquea=True
+
             if p.monto_deuda>0:
                 if p.vigencia_creadito:
-                    fecha_para_bloqqueo=p.vigencia_creadito + datetime.timedelta(days=7)
+                    fecha_para_bloqqueo=p.vigencia_creadito + timedelta(days=7)
                     if p.monto_deuda!=0 and fecha_para_bloqqueo<=fecha_actual:
-                        p.credito_bloqueado=True
-            else:
-                p.credito_bloqueado=False
+                        bloquea=True
+            if bloquea:
+                p.credito_bloqueado=True
 
 
     @api.depends('linea_credito','monto_deuda')
