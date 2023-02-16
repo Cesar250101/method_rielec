@@ -202,32 +202,27 @@ class ProductRemplate(models.Model):
     _description = 'Plantilla de productos'
 
     producto_margen = fields.Float('% Margen s/Costo')
+    costo_producto = fields.Integer('Costo Producto')
 
-    @api.onchange('')
-    def _onchange_(self):
-        pass
 
-    @api.onchange('producto_margen','standard_price')
-    def _onchange_producto_margen(self):        
-        if self.producto_margen:
-            margen=1+(self.producto_margen/100)
-            precio=round(((self.standard_price*margen)*1.19),0)
-            self.list_price=precio
+    # @api.onchange('producto_margen','standard_price')
+    # def _onchange_producto_margen(self):        
+    #     if self.producto_margen:
+    #         margen=1+(self.producto_margen/100)
+    #         precio=round(((self.standard_price*margen)*1.19),0)
+    #         self.list_price=precio
 
-    @api.onchange('standard_price')
-    def _onchange_standard_price(self):        
-        if self.producto_margen:
-            margen=1+(self.producto_margen/100)
-            precio=round(((self.standard_price*margen)*1.19),0)
-            self.list_price=precio
+    # @api.onchange('standard_price')
+    # def _onchange_standard_price(self):        
+    #     if self.producto_margen:
+    #         margen=1+(self.producto_margen/100)
+    #         precio=round(((self.standard_price*margen)*1.19),0)
+    #         self.list_price=precio
 
-    @api.model
-    def _calculo_precios_venta(self):
-        productos=self.env['product.template'].search([('active','!=',False)])
-        for p in productos:
-            margen=1+(p.producto_margen/100)
-            p.list_price=round((p.standard_price*margen)*1.19,0)
-            print(margen)
-            print(p.standard_price)
-            print(p.list_price)
+    # @api.model
+    # def _calculo_precios_venta(self):
+    #     productos=self.env['product.template'].search([('active','!=',False)])
+    #     for p in productos:
+    #         margen=1+(p.producto_margen/100)
+    #         p.list_price=round((p.standard_price*margen)*1.19,0)
     
