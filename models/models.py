@@ -3,7 +3,7 @@
 from odoo import models, fields, api,SUPERUSER_ID, _
 from odoo.exceptions import UserError, ValidationError
 
-class Usuarios(models.Model):
+class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     location_id = fields.Many2one(
@@ -17,6 +17,22 @@ class Usuarios(models.Model):
         readonly=True, required=True,domain = "[('usage','=','internal')]",
         states={'draft': [('readonly', False)]})
 
+    @api.multi
+    def button_validate(self):
+        for l in self.move_lines:
+            product=self.env['product.product'].search([('id','=',l.product_id.id)])
+            values={
+                'standard_price':l.precio_unitario
+            }
+            product.write(values)
+            #Actualiza precio de venta
+            product_template=self.env['product.template'].search([('id','=',l.product_id.product_tmpl_id.id)])
+            precio=round((l.precio_unitario*(1+(product_template.producto_margen/100)))*1.19,0)
+            values={
+                'list_price':precio
+            }
+            product_template.write(values)
+        rec= super(StockPicking, self).button_validate()
 
 class Usuarios(models.Model):
     _inherit = 'pos.config'
@@ -152,22 +168,22 @@ class Partner(models.Model):
 class Compras(models.Model):
     _inherit = 'purchase.order'
 
-    @api.multi
-    def button_confirm(self):
-        rec= super(Compras, self).button_confirm()
-        for l in self.order_line:
-            product=self.env['product.product'].search([('id','=',l.product_id.id)])
-            values={
-                'standard_price':l.price_unit
-            }
-            product.write(values)
-            #Actualiza precio de venta
-            product_template=self.env['product.template'].search([('id','=',l.product_id.product_tmpl_id.id)])
-            precio=round((l.price_unit*(1+(product_template.producto_margen/100)))*1.19,0)
-            values={
-                'list_price':precio
-            }
-            product_template.write(values)
+    # @api.multi
+    # def button_confirm(self):
+    #     rec= super(Compras, self).button_confirm()
+    #     for l in self.order_line:
+    #         product=self.env['product.product'].search([('id','=',l.product_id.id)])
+    #         values={
+    #             'standard_price':l.price_unit
+    #         }
+    #         product.write(values)
+    #         #Actualiza precio de venta
+    #         product_template=self.env['product.template'].search([('id','=',l.product_id.product_tmpl_id.id)])
+    #         precio=round((l.price_unit*(1+(product_template.producto_margen/100)))*1.19,0)
+    #         values={
+    #             'list_price':precio
+    #         }
+    #         product_template.write(values)
 
         
 
