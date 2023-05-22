@@ -285,12 +285,12 @@ class ProductRemplate(models.Model):
     costo_producto = fields.Integer('Costo Producto')
 
 
-    # @api.onchange('producto_margen','standard_price')
-    # def _onchange_producto_margen(self):        
-    #     if self.producto_margen:
-    #         margen=1+(self.producto_margen/100)
-    #         precio=round(((self.standard_price*margen)*1.19),0)
-    #         self.list_price=precio
+    @api.onchange('producto_margen','standard_price')
+    def _onchange_producto_margen(self):        
+        if self.producto_margen:
+            margen=1+(self.producto_margen/100)
+            precio=round(((self.standard_price*margen)*1.19),0)
+            self.list_price=precio
 
     # @api.onchange('standard_price')
     # def _onchange_standard_price(self):        
