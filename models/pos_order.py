@@ -210,6 +210,7 @@ class PosOrder(models.Model):
             referencias_o2m=[]
             factura_referencia=False
             invoice_type = 'out_invoice' if self.journal_document_class_id.sii_document_class_id.sii_code == 33 else 'out_refund'
+            document_number=self.sii_document_number
             if self.journal_document_class_id.sii_document_class_id.sii_code ==61:
                 sii_document_class_id=self.env['sii.document_class'].search([('sii_code','=',33)],limit=1).id
                 sii_document_class_id_boleta=self.env['sii.document_class'].search([('sii_code','=',39)],limit=1).id
@@ -282,6 +283,7 @@ class PosOrder(models.Model):
                 'ticket':  self.session_id.config_id.ticket,
                 'document_class_id': self.document_class_id.id,
                 'journal_document_class_id': self.journal_document_class_id.id,
+                'sii_document_number':document_number,
                 'responsable_envio': self.env.uid,
                 'use_documents': True,
                 'residual':self.amount_total,
