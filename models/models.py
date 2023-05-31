@@ -277,7 +277,7 @@ class PlanCuenta(models.Model):
     calcula_vcto = fields.Boolean('Calcula Vcto?',help='Indica su calcula la fecha de vcto desde la condición de pago del cliente')
 
 
-class ProductRemplate(models.Model):
+class ProductTemplate(models.Model):
     _inherit = 'product.template'
     _description = 'Plantilla de productos'
 
@@ -292,17 +292,37 @@ class ProductRemplate(models.Model):
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
 
-    # @api.onchange('standard_price')
-    # def _onchange_standard_price(self):        
-    #     if self.producto_margen:
-    #         margen=1+(self.producto_margen/100)
-    #         precio=round(((self.standard_price*margen)*1.19),0)
-    #         self.list_price=precio
+    @api.onchange('standard_price')
+    def _onchange_standard_price(self):        
+        if self.producto_margen:
+            margen=1+(self.producto_margen/100)
+            precio=round(((self.standard_price*margen)*1.19),0)
+            self.list_price=precio
 
-    # @api.model
-    # def _calculo_precios_venta(self):
-    #     productos=self.env['product.template'].search([('active','!=',False)])
-    #     for p in productos:
-    #         margen=1+(p.producto_margen/100)
-    #         p.list_price=round((p.standard_price*margen)*1.19,0)
+    @api.model
+    def _calculo_precios_venta(self):
+        productos=self.env['product.template'].search([('active','!=',False)])
+        for p in productos:
+            margen=1+(p.producto_margen/100)
+            p.list_price=round((p.standard_price*margen)*1.19,0)
+
+    @api.model
+    def create(self, vals):
+        if self.producto_margen>=100:
+            margen=(self.producto_margen/100)
+        else:
+            margen=1+(self.producto_margen/100)
+
+        if self.standard_price!=0 and self.producto_margen!=0:
+            vals['list_price']=round((self.standard_price*margen)*1.19,0)
+        return super(ProductTemplate, self).create(vals)    
     
+    @api.multi
+    def write(self, vals):
+        if self.producto_margen>=100:
+            margen=(self.producto_margen/100)
+        else:
+            margen=1+(self.producto_margen/100)
+        if self.standard_price!=0 and self.producto_margen!=0:
+            vals['list_price']=round((self.standard_price*margen)*1.19,0)
+        return super(ProductTemplate, self).write(vals)       
