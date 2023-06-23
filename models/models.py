@@ -292,12 +292,6 @@ class ProductTemplate(models.Model):
             precio=round(((self.standard_price*margen)*1.19),0)
             self.list_price=precio
 
-    @api.onchange('standard_price')
-    def _onchange_standard_price(self):        
-        if self.producto_margen:
-            margen=1+(self.producto_margen/100)
-            precio=round(((self.standard_price*margen)*1.19),0)
-            self.list_price=precio
 
     @api.model
     def _calculo_precios_venta(self):
@@ -319,10 +313,10 @@ class ProductTemplate(models.Model):
     
     @api.multi
     def write(self, vals):
-        if self.producto_margen>=100:
-            margen=(self.producto_margen/100)
-        else:
+        if self.producto_margen:
             margen=1+(self.producto_margen/100)
-        if self.standard_price!=0 and self.producto_margen!=0:
-            vals['list_price']=round((self.standard_price*margen)*1.19,0)
-        return super(ProductTemplate, self).write(vals)       
+            precio=round(((self.standard_price*margen)*1.19),0)
+            # self.list_price=precio
+            vals['list_price']=round(precio)
+        rec= super(ProductTemplate, self).write(vals)       
+        return rec
